@@ -6,9 +6,13 @@ var xsd2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v
 
 getXSDSchemas(xsd1);
 getXSDSchemas(xsd2);
-
-function callback(response) {
-  $xsd1 = $(response);
+//
+function callback(response, adres) {
+  if (adres == xsd1) {
+    $xsd1 = $(response);
+  } else if (adres == xsd2) {
+    $xsd2 = $(response);
+  }
   // jeżeli undefined to bląd
 }
 
@@ -20,43 +24,25 @@ function getXSDSchemas(adres) {
     'url': adres,
     //'data': { 'request': "", 'target': arrange_url, 'method': method_target },
     'success': function(data){
-         callback(data);
+         callback(data, adres);
     },
   });
 }
-// var $x;
-//
-// function xyz(result) {
-//   $x = result;
-// }
-//
-// function getXSDSchemas(myCallback) {
-//   $.ajax({
-//       type: "get",
-//       url: "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c",
-//       dataType: "xml",
-//       success: function(data) {
-//           /* handle data here */
-//            $data = $(data);
-//            myCallback($data);
-//       },
-//       error: function(xhr, status) {
-//           /* handle error here */
-//           console.log("nie ok");
-//       }
-//   });
-//  }
 
 function getNodeName(name) {
   s = "xsd\\:element[name='" + name + "'] > xsd\\:annotation > xsd\\:documentation:first";
+  if ($xsd1 === undefined || $xsd2 === undefined) {
+    // jeżeli nie ma to błąd
+  }
   $y = $xsd1.find(s);
-  if ($y === "") {
+  if ($y.text() === "") {
     $y = $xsd2.find(s);
+    if ($y.text() === "") {
+      $y.text() = "BŁĄD!";
+    }
   }
 
-
   console.log($y.text());
-  // jeżeli nie ma return_first to błąd
 }
 
 function logChildren( $parent ) {
