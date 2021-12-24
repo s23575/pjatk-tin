@@ -1,23 +1,62 @@
-var $x;
+var $xsd1;
+var $xsd2;
 
-$.ajax({
-    type: "get",
-    url: "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c",
-    dataType: "xml",
-    success: function(data) {
-        /* handle data here */
-        $x = $(data);
+var xsd1 = "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c";
+var xsd2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v1-2.xsd";
+
+getXSDSchemas(xsd1);
+getXSDSchemas(xsd2);
+
+function callback(response) {
+  $xsd1 = $(response);
+  // jeżeli undefined to bląd
+}
+
+function getXSDSchemas(adres) {
+  $.ajax({
+    'type': "GET",
+  //  'global': false,
+    'dataType': 'xml',
+    'url': adres,
+    //'data': { 'request': "", 'target': arrange_url, 'method': method_target },
+    'success': function(data){
+         callback(data);
     },
-    error: function(xhr, status) {
-        /* handle error here */
-        console.log("nie ok");
-    }
-
-});
+  });
+}
+// var $x;
+//
+// function xyz(result) {
+//   $x = result;
+// }
+//
+// function getXSDSchemas(myCallback) {
+//   $.ajax({
+//       type: "get",
+//       url: "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c",
+//       dataType: "xml",
+//       success: function(data) {
+//           /* handle data here */
+//            $data = $(data);
+//            myCallback($data);
+//       },
+//       error: function(xhr, status) {
+//           /* handle error here */
+//           console.log("nie ok");
+//       }
+//   });
+//  }
 
 function getNodeName(name) {
-  $y = $x.find("xsd\\:element[name='" + name + "'] > xsd\\:annotation > xsd\\:documentation:first");
+  s = "xsd\\:element[name='" + name + "'] > xsd\\:annotation > xsd\\:documentation:first";
+  $y = $xsd1.find(s);
+  if ($y === "") {
+    $y = $xsd2.find(s);
+  }
+
+
   console.log($y.text());
+  // jeżeli nie ma return_first to błąd
 }
 
 function logChildren( $parent ) {
