@@ -205,9 +205,9 @@
 	</xsd:complexType>
 	<xsd:complexType name="TKwotyPozycji">
 		<xsd:annotation>
-			<xsd:documentation>Kwoty: 
+			<xsd:documentation>Kwoty:
 - na dzień kończący bieżący rok obrotowy,
-- na dzień kończący poprzedni rok obrotowy, 
+- na dzień kończący poprzedni rok obrotowy,
 - Przekształcone dane porównawcze za poprzedni rok obrotowy</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
@@ -230,9 +230,9 @@
 	</xsd:complexType>
 	<xsd:complexType name="TKwotyPozycjiTys">
 		<xsd:annotation>
-			<xsd:documentation>Kwoty w tysiącach: 
+			<xsd:documentation>Kwoty w tysiącach:
 - na dzień kończący bieżący rok obrotowy,
-- na dzień kończący poprzedni rok obrotowy, 
+- na dzień kończący poprzedni rok obrotowy,
 - Przekształcone dane porównawcze za poprzedni rok obrotowy</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
@@ -255,9 +255,9 @@
 	</xsd:complexType>
 	<xsd:complexType name="TWspolczynnikiPozycji">
 		<xsd:annotation>
-			<xsd:documentation>Wpółczynnik: 
+			<xsd:documentation>Wpółczynnik:
 - na dzień kończący bieżący rok obrotowy,
-- na dzień kończący poprzedni rok obrotowy, 
+- na dzień kończący poprzedni rok obrotowy,
 - Przekształcone dane porównawcze za poprzedni rok obrotowy</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>

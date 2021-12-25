@@ -55,17 +55,47 @@ input {
   font-size: 12px;
   display: none;
 }
-/*
 
-#left{float:left;width:24%; height:95vh; margin:1vh 1%}
-#right{float:left;width:72%; height:95vh; margin:1vh 1%; overflow:hidden;}
+.content{
+  width: 900px;
+  margin: auto;
+  margin-top: 12px;
+}
 
-#right div{
-    float: left;
-    width:30.5%;
-    height:30%;
-    margin:0.5%;
-    border:1px solid #000000;
-    background:#FFFFFF;
-    overflow:hidden;
-} */
+.parent{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  border: 1px solid black;
+}
+
+.parent:not(:first-of-type){
+  border-top: none;
+}
+
+.dane {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.kategoria {
+  flex: 1;
+  display: flex;
+  height: 30px;
+  justify-content: left;
+  align-items: center;
+  height: 30px;
+  border: 1px solid black;
+  padding-left: 12px;
+}
+
+.wartosc{
+  flex: 1;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 30px;
+  border: 1px solid black;
+  padding-left: 12px;
+}

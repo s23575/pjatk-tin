@@ -8,6 +8,7 @@ var xsd3 = "https://www.gov.pl/attachment/419a55e1-ed6f-4e81-bfde-4968c066d912";
 
 getXSDSchemas(xsd1);
 getXSDSchemas(xsd2);
+getXSDSchemas(xsd3);
 
 function callback(response, adres) {
 
@@ -40,48 +41,80 @@ function getXSDSchemas(adres) {
 }
 
 function getNodeName(name) {
-  s = "xsd\\:element[name='" + name + "'] > xsd\\:annotation > xsd\\:documentation:first";
+  var s = "xsd\\:element[name='" + name + "'] > xsd\\:annotation > xsd\\:documentation:first";
+  var r;
   if ($xsd1 === undefined || $xsd2 === undefined) {
     // jeżeli nie ma to błąd
   }
+
   $y = $xsd1.find(s);
+  r = $y.text();
+
   if ($y.text() === "") {
     $y = $xsd2.find(s);
+    r = $y.text();
+
     if ($y.text() === "") {
-      $y.text() = "BŁĄD!";
+      $y = $xsd3.find(s);
+      r = $y.text();
+
+      if ($y.text() === "") {
+        r = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+        r = r.toLowerCase();
+        r = r.charAt(0).toUpperCase() + r.slice(1);
+      }
     }
   }
 
-  console.log($y.text());
+  return r;
 }
 
-function logChildren( $parent ) {
+function getCategory ($xml, kategoria) {
+  var $adres = $xml.find(kategoria);
+  var s = $adres[0].nodeName.substring($adres[0].nodeName.indexOf(":") + 1);
+  var d = getNodeName(s);
+  $( ".content" ).append( '<div class="parent">' + d + '</div>' );
+  logChildren($adres);
+}
+
+function logChildren( $parent , level=0) {
   var s;
+  var d;
+  level++;
   $parent.children().each( function( i, child ) {
-      if ($(this).children().length > 1) {
-        s = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
-        getNodeName(s);
-        logChildren( $(child) );
+    s = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
+      if ($(this).children().length > 0) {
+        d = getNodeName(s);
+        $( ".content" ).append( '<div class="parent">' + d + '</div>' );
+        // console.log(d + " : " + level);
+        logChildren( $(child) , level);
       } else {
-        console.log( child.nodeName.replace(/([a-z])([A-Z])/g, '$1 $2') + " : " + child.textContent);
-        logChildren( $(child) );
+        d = getNodeName(s);
+        $( ".content" ).append( '<div class="dane">' +
+                                '<div class="kategoria">' + d + '</div>' +
+                                '<div class="wartosc">' + child.textContent + '</div>' +
+                                '</div>');
       }
   });
 }
 
 function previewFile() {
-  var [file] = document.querySelector('input[type=file]').files;
-  var reader = new FileReader();
+  var file = $('input[type=file]')[0].files[0];
+  $(".input" ).text( file.name );
 
+  var reader = new FileReader();
   reader.addEventListener("load", () => {
 
     var xmlString = reader.result;
     var xml = $.parseXML(xmlString);
     $xml = $(xml);
-    console.log($.isXMLDoc(xml));
-    $adres = $xml.find('jin\\:Aktywa');
 
-    logChildren($adres);
+    // getCategory($xml,'P_1');
+    // getCategory($xml,'P_3');
+     getCategory($xml,'jin\\:Aktywa');
+    // getCategory($xml,'jin\\:Pasywa');
+    // getCategory($xml,'RZiS');
+    // getCategory($xml,'InformacjaDodatkowaDotyczacaPodatkuDochodowego');
 
   }, false);
 
