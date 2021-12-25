@@ -1,19 +1,29 @@
 var $xsd1;
 var $xsd2;
+var $xsd3;
 
 var xsd1 = "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c";
 var xsd2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v1-2.xsd";
+var xsd3 = "https://www.gov.pl/attachment/419a55e1-ed6f-4e81-bfde-4968c066d912";
 
 getXSDSchemas(xsd1);
 getXSDSchemas(xsd2);
 
 function callback(response, adres) {
-  if (adres == xsd1) {
-    $xsd1 = $(response);
-  } else if (adres == xsd2) {
-    $xsd2 = $(response);
+
+  switch(adres) {
+    case xsd1:
+      $xsd1 = $(response);
+      break;
+    case xsd2:
+      $xsd2 = $(response);
+      break;
+    case xsd3:
+      $xsd3 = $(response);
+      break;
+    default:
+    // jeżeli undefined to bląd
   }
-  // jeżeli undefined to bląd
 }
 
 function getXSDSchemas(adres) {
