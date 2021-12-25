@@ -6,7 +6,7 @@ var xsd2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v
 
 getXSDSchemas(xsd1);
 getXSDSchemas(xsd2);
-//
+
 function callback(response, adres) {
   if (adres == xsd1) {
     $xsd1 = $(response);

@@ -6,22 +6,35 @@ body{
 }
 
 .header {
-  display: flex;
+  /* display: flex; */
   width: 900px;
   margin: auto;
-  border: 1px solid black;
 }
 
 
-.input {
+/* .input {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 30px;
+} */
+
+.input {
+  /* flex: 1; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 30px;
+  border: 1px solid black;
 }
 
-.buttons {
+.input:hover {
+  cursor: pointer;
+}
+
+/* .buttons {
   flex: 1;
   display: flex;
 }
@@ -33,12 +46,11 @@ body{
   justify-content: center;
   align-items: center;
   border-left: 1px solid black;
-}
+} */
 
 input {
   font-size: 12px;
-  opacity: 0;
-  position: absolute;
+  display: none;
 }
 /*
 
