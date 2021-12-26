@@ -83,17 +83,16 @@ function logChildren( $parent , level=0) {
   level++;
   $parent.children().each( function( i, child ) {
     s = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
-      if ($(this).children().length > 0) {
+      if ($(child).children().length > 0) {
         d = getNodeName(s);
-        $( ".content" ).append( '<div class="parent">' + d + '</div>' );
+        $( ".content" ).append( '<div class="kategoria">' + d + '</div>' );
         // console.log(d + " : " + level);
         logChildren( $(child) , level);
       } else {
-        d = getNodeName(s);
-        $( ".content" ).append( '<div class="dane">' +
-                                '<div class="kategoria">' + d + '</div>' +
-                                '<div class="wartosc">' + child.textContent + '</div>' +
-                                '</div>');
+//        d = getNodeName(s);
+        $( ".content" ).append( /*'<div class="dane">' +*/
+//                                '<div class="kategoria">' + d + '</div>' +
+                                '<div class="wartosc">' + child.textContent + '</div>');
       }
   });
 }
@@ -111,7 +110,7 @@ function previewFile() {
 
     // getCategory($xml,'P_1');
     // getCategory($xml,'P_3');
-     getCategory($xml,'jin\\:Aktywa');
+    getCategory($xml,'Bilans');
     // getCategory($xml,'jin\\:Pasywa');
     // getCategory($xml,'RZiS');
     // getCategory($xml,'InformacjaDodatkowaDotyczacaPodatkuDochodowego');

@@ -76,7 +76,6 @@ input {
 
 .dane {
   display: flex;
-  flex-wrap: wrap;
 }
 
 .kategoria {
@@ -87,6 +86,7 @@ input {
   align-items: center;
   height: 30px;
   border: 1px solid black;
+  border-top: none;
   padding-left: 12px;
 }
 
@@ -97,5 +97,6 @@ input {
   align-items: center;
   height: 30px;
   border: 1px solid black;
+  border-top: none;
   padding-left: 12px;
 }
