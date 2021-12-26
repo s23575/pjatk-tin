@@ -77,22 +77,31 @@ function getCategory ($xml, kategoria) {
   logChildren($adres);
 }
 
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ").replace(".",",");
+}
+
 function logChildren( $parent , level=0) {
   var s;
   var d;
   level++;
+  var p = "";
+  for (var i = 1; i < level; i++) {
+      p += "– ";
+  }
   $parent.children().each( function( i, child ) {
     s = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
       if ($(child).children().length > 0) {
         d = getNodeName(s);
-        $( ".content" ).append( '<div class="kategoria">' + d + '</div>' );
+        $( ".content" ).append( '<div class="dane" level=' + level + '><div class="kategoria"><p>' + p + d + '</p></div></div>' );
         // console.log(d + " : " + level);
         logChildren( $(child) , level);
       } else {
 //        d = getNodeName(s);
-        $( ".content" ).append( /*'<div class="dane">' +*/
+        d = numberWithCommas(child.textContent);
+        $( ".dane" ).last().append( /*'<div class="dane">' +*/
 //                                '<div class="kategoria">' + d + '</div>' +
-                                '<div class="wartosc">' + child.textContent + '</div>');
+                                '<div class="wartosc"><p>' + d + '</p></div>');
       }
   });
 }
@@ -110,9 +119,8 @@ function previewFile() {
 
     // getCategory($xml,'P_1');
     // getCategory($xml,'P_3');
-    getCategory($xml,'Bilans');
-    // getCategory($xml,'jin\\:Pasywa');
-    // getCategory($xml,'RZiS');
+    // getCategory($xml,'Bilans');
+     getCategory($xml,'RZiS');
     // getCategory($xml,'InformacjaDodatkowaDotyczacaPodatkuDochodowego');
 
   }, false);

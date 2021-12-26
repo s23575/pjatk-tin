@@ -79,7 +79,7 @@ input {
 }
 
 .kategoria {
-  flex: 1;
+  flex: 2 1 0;
   display: flex;
   height: 30px;
   justify-content: left;
@@ -87,16 +87,44 @@ input {
   height: 30px;
   border: 1px solid black;
   border-top: none;
-  padding-left: 12px;
 }
 
 .wartosc{
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
-  justify-content: left;
+  justify-content: right;
   align-items: center;
   height: 30px;
   border: 1px solid black;
   border-top: none;
+  border-left: none;
+}
+
+p {
+  padding-right: 12px;
   padding-left: 12px;
 }
+
+/* [level="1"] > .kategoria > p {
+  padding-left: 12px;
+}
+
+[level="2"] > .kategoria > p {
+  padding-left: 24px;
+}
+
+[level="3"] > .kategoria > p {
+  padding-left: 36px;
+}
+
+[level="4"] > .kategoria > p {
+  padding-left: 48px;
+}
+
+[level="5"] > .kategoria > p {
+  padding-left: 60px;
+}
+
+[level="6"] > .kategoria > p {
+  padding-left: 72px;
+} */
