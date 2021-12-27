@@ -17,23 +17,28 @@
             <label for="input" class="input">Wybierz plik...</label>
               <input id="input" type="file" onchange="openFile()"></input>
           </div>
-          <!-- <div class="buttons">
-            <div class="button">
-              Aktywa
-            </div>
-            <div class="button">
-              Pasywa
-            </div>
-            <div class="button">
-              RZiS
-            </div>
-        </div> -->
       </div>
 
       <div class="content">
-        <div class="parent">Dane identyfikujące jednostkę</div>
-        <div class="parent">Bilans</div>
-        <div class="parent">Rachunek zysków i strat</div>
+        <div class="parent" clicked="true">Dane jednostki</div>
+        <div class="dataSet" id="entityData">
+          <!-- <div class="dane">
+            <div class="kategoria"><p>Test</p></div>
+            <div class="wartosc"><p>Test</p></div>
+          </div> -->
+        </div>
+        <div class="parent" clicked="false">Bilans</div>
+        <div class="dataSet" id="balanceSheet">
+          <!-- <div class="dane">
+            <div class="kategoria"><div class="level"><p>– – –&nbsp;</p></div><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p></div>
+            <div class="wartosci">
+              <div class="wartosc"><p>Test</p></div>
+              <div class="wartosc"><p>Test</p></div>
+            </div> -->
+        </div>
+        <div class="parent" clicked="false">Rachunek zysków i strat</div>
+        <div class="dataSet" id="profitAndLoss">
+        </div>
       </div>
 
       <div class="footer">

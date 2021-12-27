@@ -1,3 +1,7 @@
+html {
+    overflow-y:scroll;
+}
+
 body{
     background-color: white;
     font-family: Tahoma, Arial, sans-serif;
@@ -7,7 +11,7 @@ body{
 
 .header {
   /* display: flex; */
-  width: 900px;
+  width: 960px;
   margin: auto;
 }
 
@@ -57,9 +61,14 @@ input {
 }
 
 .content{
-  width: 900px;
+  width: 960px;
   margin: auto;
   margin-top: 12px;
+}
+
+p {
+  padding-right: 12px;
+  padding-left: 12px;
 }
 
 .parent{
@@ -68,20 +77,28 @@ input {
   align-items: center;
   height: 30px;
   border: 1px solid black;
+  border-top: none;
 }
 
-.parent:not(:first-of-type){
-  border-top: none;
+.parent:nth-of-type(1){
+  border-top: 1px solid black;
+}
+
+[clicked="false"] + .dataSet {
+  display:none;
+}
+
+[clicked="true"] + .dataSet {
+  display:initial;
 }
 
 .dane {
   display: flex;
 }
 
-.kategoria {
-  flex: 2 1 0;
+.kategoria{
+  flex: 1;
   display: flex;
-  height: 30px;
   justify-content: left;
   align-items: center;
   height: 30px;
@@ -89,8 +106,27 @@ input {
   border-top: none;
 }
 
+.level{
+  white-space: nowrap;
+}
+
+.kategoria > p{
+  padding-right: 12px;
+  padding-left: 0px;
+}
+
+.wartosci {
+  flex: 1;
+  display: flex;
+}
+
+.level > p{
+  padding-right: 0px;
+  padding-left: 12px;
+}
+
 .wartosc{
-  flex: 1 1 0;
+  flex: 2;
   display: flex;
   justify-content: right;
   align-items: center;
@@ -100,9 +136,12 @@ input {
   border-left: none;
 }
 
-p {
-  padding-right: 12px;
-  padding-left: 12px;
+.wartosc:nth-of-type(3){
+  flex: 1;
+}
+
+#entityData > * > * > .wartosc {
+  justify-content: left;
 }
 
 /* [level="1"] > .kategoria > p {

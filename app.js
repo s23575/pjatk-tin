@@ -37,6 +37,7 @@
   var $schema1 = getSchemas(schemaAddress1);
   var $schema2 = getSchemas(schemaAddress2);
   var $schema3 = getSchemas(schemaAddress3);
+
 // < - - / Pobieranie struktur danych - - >
 
 // < - - Pobieranie i agregowanie danych - - >
@@ -116,7 +117,7 @@
   function getChildrenContentEnt($parentCategory, level=0) {
     level++;
 
-    $parentCategory.children().each( function( i, child ) {
+    $parentCategory.children().each(function(i, child) {
 
       var entData = new entityData();
 
@@ -132,7 +133,17 @@
         entData.setValue($(child).text());
       }
 
-      if (entData.getCategory().includes("Identyfikator podatkowy NIP")) {
+      if (entData.getCategory() == "Adres" && entData.getLevel() == 2) {
+
+        entData.setLevel(1);
+        level--;
+        entDataSet.pop();
+
+      } else if (entData.getCategory() == "Kod pkd") {
+
+        entData.setCategory("Kod PKD");
+
+      } else if (entData.getCategory() == "Identyfikator podatkowy NIP") {
 
         var entDataAdd = new entityData();
         entDataAdd.setLevel(1);
@@ -159,7 +170,7 @@
 
       entDataSet.push(entData);
 
-      getChildrenContentEnt( $(child) , level);
+      getChildrenContentEnt($(child) , level);
 
     });
   }
@@ -167,7 +178,7 @@
   function getChildrenContentFin($parentCategory, level=0) {
     level++;
 
-    $parentCategory.children().each( function( i, child ) {
+    $parentCategory.children().each(function(i, child) {
       if ($(child).children().length > 0) {
         var finData = new financialData();
 
@@ -176,20 +187,29 @@
 
         finData.setLevel(level);
 
+        var prefix = $(child).children(":first").prop("tagName");
+        prefix = prefix.substr(0, prefix.indexOf(':'));
+
         if (child.nodeName.includes("PozycjaUszczegolawiajaca")) {
-          finData.setCategory($(child).children("dtsf\\:NazwaPozycji").text());
-          finData.setValueCurrentYear(parseFloat($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaA").text()));
-          finData.setValuePreviousYear(parseFloat($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaB").text()));
+          finData.setCategory($(child).children(prefix + "\\:NazwaPozycji").text());
+          if (finData.getCategory().startsWith("– ") || finData.getCategory().startsWith("- ")) {
+            finData.setCategory(finData.getCategory().slice(2));
+          }
+          finData.setValueCurrentYear(parseFloat($(child).children(prefix + "\\:KwotyPozycji").children(prefix + "\\:KwotaA").text()));
+          finData.setValuePreviousYear(parseFloat($(child).children(prefix + "\\:KwotyPozycji").children(prefix + "\\:KwotaB").text()));
           finDataSet.push(finData);
-        } else if (child.nodeName == "dtsf:KwotyPozycji") {
+        } else if (child.nodeName.includes("KwotyPozycji")) {
         } else {
           categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
           finData.setCategory(getCategoryName(categoryNameString));
-          finData.setValueCurrentYear(parseFloat($(child).children("dtsf\\:KwotaA").text()));
-          finData.setValuePreviousYear(parseFloat($(child).children("dtsf\\:KwotaB").text()));
+          if (finData.getCategory().startsWith("– ") || finData.getCategory().startsWith("- ")) {
+            finData.setCategory(finData.getCategory().slice(2));
+          }
+          finData.setValueCurrentYear(parseFloat($(child).children(prefix + "\\:KwotaA").text()));
+          finData.setValuePreviousYear(parseFloat($(child).children(prefix + "\\:KwotaB").text()));
           finDataSet.push(finData);
         }
-        getChildrenContentFin( $(child) , level);
+        getChildrenContentFin($(child) , level);
       }
     });
   }
@@ -205,44 +225,69 @@
     var $category = $xmlData.find(category);
     if (type == 1) {
       getChildrenContentFin($category);
-    } else {
+    } else if (type == 0) {
       getChildrenContentEnt($category);
     }
   }
 
+  var file;
+
   function openFile() {
 
-    var balanceSheet;
-    var profitAndLoss;
-    var entityData;
-
-    var file = $('input[type=file]')[0].files[0];
-    $(".input" ).text( file.name );
+    file = $('input[type=file]')[0].files[0];
+    $(".input" ).text(file.name );
 
     var reader = new FileReader();
     reader.addEventListener("load", () => {
+
+      // Wyczyszczenie dotychczas odczytanych danych
+
+      $(".dataSet").each(function(i, element) {
+        $(element).empty();
+      });
+      $(".parent").each(function(i, element) {
+        element.setAttribute("clicked","false");
+      });
+      $("#entityData").prev().attr("clicked","true");
+      profitAndLossType = undefined;
 
       var data = reader.result;
       var xmlData = $.parseXML(data);
       $xmlData = $(xmlData);
 
+      var balanceSheet;
+      var profitAndLoss;
+
+      var prefix = "";
+      if ($xmlData.find("P_1").length == 0) {
+          prefix = "tns\\:";
+          unitK = true;
+      }
+
       // Typy danych:
       // 0 - dane opisowe (dotyczące podmiotu),
       // 1 - dane finansowe,
 
-      getContentByCategory($xmlData,'P_1', 0);
-      getContentByCategory($xmlData,'P_3', 0);
-      console.log(entDataSet);
+      getContentByCategory($xmlData, prefix + "P_1", 0);
+      getContentByCategory($xmlData, prefix + "P_3", 0);
+      console.log('Log :\tuwtorzono tablicę "entDataSet" zawierającą ' + entDataSet.length + ' element/y/ów/');
 
-      getContentByCategory($xmlData,'Bilans', 1);
+      getContentByCategory($xmlData, prefix + 'Bilans', 1);
       balanceSheet = finDataSet;
       finDataSet = [];
-      console.log(balanceSheet);
+      console.log('Log :\tuwtorzono tablicę "balanceSheet" zawierającą ' + balanceSheet.length + ' element/y/ów/');
 
-      getContentByCategory($xmlData,'RZiS', 1);
+      getContentByCategory($xmlData, prefix + 'RZiS', 1);
       profitAndLoss = finDataSet;
       finDataSet = [];
-      console.log(profitAndLoss);
+      console.log('Log :\tuwtorzono tablicę "profitAndLoss" zawierającą ' + profitAndLoss.length + ' element/y/ów/');
+
+//      unitK = $xmlData.find(":contains(SprFinJednostkaInnaW)").text().endsWith("Tysiacach");
+
+      displayData(entDataSet, balanceSheet, profitAndLoss);
+      entDataSet = [];
+      balanceSheet = [];
+      profitAndLoss = [];
 
     }, false);
 
@@ -255,9 +300,125 @@
 
   }
 
+  // </ - - Pobieranie i agregowanie danych - - >
+
   // < - - Wyświetlanie danych - - >
 
+  var unitK;
 
-  // function numberWithCommas(x) {
-    //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ").replace(".",",");
-    // }
+  function formatNumber(number, type) {
+
+    // Typy formatowania:
+    // 0 - wartości liczbowe, w walucie,
+    // 1 - wartości procentowe,
+
+    if (type == 0) {
+      result = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(number);
+      if (unitK == true) {
+        result = result.replace("zł", "tys. zł");
+      }
+    } else if (type == 1) {
+      result = new Intl.NumberFormat('fr-FR', { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2}).format(number);
+    }
+
+    return result;
+  }
+
+  function displayEntData(entityData) {
+
+    var string;
+    var levelIndicator = "";
+
+    entityData.forEach(function(data, i) {
+
+      for (var i = 1; i < data.getLevel(); i++) {
+          levelIndicator += "–&nbsp;";
+      }
+
+      if (data.getValue() === undefined) {
+        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                 '<p>' + data.getCategory() + '</p></div></div>';
+      } else {
+
+        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                 '<p>' + data.getCategory() + '</p></div>' +
+                 '<div class="wartosci"><div class="wartosc"><p>' + data.getValue() + '</p></div></div></div>';
+      }
+
+      $("#entityData" ).append(string);
+
+      levelIndicator = "";
+    });
+  }
+
+  function displayFinData(finData, type) {
+    var string;
+    var levelIndicator = "";
+    var growth;
+
+    finData.forEach(function(data, i) {
+
+      for (var i = 1; i < data.getLevel(); i++) {
+          levelIndicator += "–&nbsp;";
+      }
+
+      growth = (data.getValueCurrentYear() - data.getValuePreviousYear()) / data.getValuePreviousYear();
+      if (isNaN(growth)) {
+        growth = "";
+      } else {
+        growth = formatNumber(growth, 1);
+      }
+
+      if (isNaN(data.getValueCurrentYear())) {
+        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                 '<p>' + data.getCategory() + '</p></div></div>';
+      } else {
+        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                 '<p>' + data.getCategory() + '</p></div>' +
+                 '<div class="wartosci"><div class="wartosc"><p>' + formatNumber(data.getValueCurrentYear(), 0) + '</p></div>' +
+                 '<div class="wartosc"><p>' + formatNumber(data.getValuePreviousYear(), 0) + '</p></div>' +
+                 '<div class="wartosc"><p>' + growth + '</p></div></div></div>';
+      }
+
+      if (type == 0) {
+        $("#balanceSheet" ).append(string);
+      } else if (type == 1) {
+        $("#profitAndLoss" ).append(string);
+      }
+
+      levelIndicator = "";
+    });
+  }
+
+  function displayData (entityData, balanceSheet, profitAndLoss) {
+
+    displayEntData(entityData);
+
+    // Typy danych:
+    // 0 - bilans,
+    // 1 - RZiS,
+
+    displayFinData(balanceSheet, 0);
+    displayFinData(profitAndLoss, 1);
+
+  }
+
+  // </ - - Wyświetlanie danych - - >
+
+  // < - - Rozwijanie / zwijanie nagłówków - - >
+
+  $(function(){
+    $(".parent").click(function(e) {
+      var clicked = e.target.getAttribute("clicked");
+
+      if (clicked == "false") {
+        if (Boolean(file)) {
+          e.target.setAttribute("clicked","true");
+        }
+      } else {
+        if (Boolean(file)) {
+          e.target.setAttribute("clicked","false");
+        }
+      }
+    });
+  })
