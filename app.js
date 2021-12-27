@@ -41,10 +41,6 @@
 
 // < - - Pobieranie i agregowanie danych - - >
 
-  // function numberWithCommas(x) {
-  //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ").replace(".",",");
-  // }
-
   var finDataSet = new Array();
   var entDataSet = new Array();
 
@@ -109,7 +105,7 @@
 
         if ($category.text() === "") {
           result = categoryNameString.replace(/([a-z])([A-Z])/g, '$1 $2');
-          result = result.toLowerCase().charAt(0).toUpperCase() + result.slice(1);
+          result = result.toLowerCase().charAt(0).toUpperCase() + result.slice(1).toLowerCase();
         }
       }
     }
@@ -117,37 +113,56 @@
     return result;
   }
 
-  // function getChildrenContentEnt($parentCategory, level=0) {
-  //   var entData = new entityData();
-  //   entDataSet.push(entData);
-  //
-  //   var categoryNameString;
-  //   var categoryName;
-  //   level++;
-  //   // var dashes = "";
-  //   // for (var i = 1; i < level; i++) {
-  //   //   dashes += "– ";
-  //   // }
-  //   $parentCategory.children().each( function( i, child ) {
-  //     categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
-  //     if ($(this).children().length > 0) {
-  //       categoryName = getCategoryName(categoryNameString);
-  //       entDataSet.at(-1).setCategory(categoryName);
-  //       entDataSet.at(-1).setLevel(level);
-  //     } else {
-  //       categoryName = getCategoryName(categoryNameString);
-  //       entDataSet.at(-1).setCategory(categoryName);
-  //       entDataSet.at(-1).setValue(child.textContent);
-  //       entDataSet.at(-1).setLevel(level);
-  //       // d = getNodeName(s);
-  //       // $( ".content" ).append( '<div class="dane">' +
-  //       //                         '<div class="kategoria">' + d + '</div>' +
-  //       //                         '<div class="wartosc">' + child.textContent + '</div>' +
-  //       //                         '</div>');
-  //     }
-  //     getChildrenContentEnt( $(child) , level);
-  //   });
-  // }
+  function getChildrenContentEnt($parentCategory, level=0) {
+    level++;
+
+    $parentCategory.children().each( function( i, child ) {
+
+      var entData = new entityData();
+
+      var categoryNameString;
+      var categoryName;
+      var entDataAdd;
+
+      categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
+      entData.setLevel(level);
+      entData.setCategory(getCategoryName(categoryNameString));
+
+      if ($(child).children().length == 0) {
+        entData.setValue($(child).text());
+      }
+
+      if (entData.getCategory().includes("Identyfikator podatkowy NIP")) {
+
+        var entDataAdd = new entityData();
+        entDataAdd.setLevel(1);
+        entDataAdd.setCategory("Numery identyfikacyjne");
+        entDataSet.push(entDataAdd);
+        entData.setLevel(2);
+
+      } else if (entData.getCategory().includes("Numer KRS")) {
+
+        entData.setCategory(entData.getCategory().substring(0, entData.getCategory().indexOf(".")));
+        entData.setLevel(2);
+
+      } else if (entData.getCategory().includes("Data")) {
+
+        if (entData.getCategory() == "Data od") {
+          var entDataAdd = new entityData();
+          entDataAdd.setLevel(1);
+          entDataAdd.setCategory("Okres objęty sprawozdaniem finansowym");
+          entDataSet.push(entDataAdd);
+        }
+        entData.setLevel(2);
+
+      }
+
+      entDataSet.push(entData);
+
+      getChildrenContentEnt( $(child) , level);
+
+    });
+  }
 
   function getChildrenContentFin($parentCategory, level=0) {
     level++;
@@ -163,15 +178,15 @@
 
         if (child.nodeName.includes("PozycjaUszczegolawiajaca")) {
           finData.setCategory($(child).children("dtsf\\:NazwaPozycji").text());
-          finData.setValueCurrentYear($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaA").text());
-          finData.setValuePreviousYear($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaB").text());
+          finData.setValueCurrentYear(parseFloat($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaA").text()));
+          finData.setValuePreviousYear(parseFloat($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaB").text()));
           finDataSet.push(finData);
         } else if (child.nodeName == "dtsf:KwotyPozycji") {
         } else {
           categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
           finData.setCategory(getCategoryName(categoryNameString));
-          finData.setValueCurrentYear($(child).children("dtsf\\:KwotaA").text());
-          finData.setValuePreviousYear($(child).children("dtsf\\:KwotaB").text());
+          finData.setValueCurrentYear(parseFloat($(child).children("dtsf\\:KwotaA").text()));
+          finData.setValuePreviousYear(parseFloat($(child).children("dtsf\\:KwotaB").text()));
           finDataSet.push(finData);
         }
         getChildrenContentFin( $(child) , level);
@@ -188,8 +203,6 @@
     }
 
     var $category = $xmlData.find(category);
-    // var categoryName = getNodeName($category[0].nodeName.substring($category[0].nodeName.indexOf(":") + 1));
-    // $( ".content" ).append( '<div class="parent">' + categoryName + '</div>' );
     if (type == 1) {
       getChildrenContentFin($category);
     } else {
@@ -198,6 +211,7 @@
   }
 
   function openFile() {
+
     var balanceSheet;
     var profitAndLoss;
     var entityData;
@@ -216,19 +230,19 @@
       // 0 - dane opisowe (dotyczące podmiotu),
       // 1 - dane finansowe,
 
-      // getContentByCategory($xmlData,'P_1', 0);
-      // // getContentByCategory($xmlData,'P_1');
-      // getContentByCategory($xmlData,'P_3', 0);
-      // entityData = entDataSet;
-      // entDataSet = [];
+      getContentByCategory($xmlData,'P_1', 0);
+      getContentByCategory($xmlData,'P_3', 0);
+      console.log(entDataSet);
 
       getContentByCategory($xmlData,'Bilans', 1);
       balanceSheet = finDataSet;
       finDataSet = [];
+      console.log(balanceSheet);
 
       getContentByCategory($xmlData,'RZiS', 1);
       profitAndLoss = finDataSet;
       finDataSet = [];
+      console.log(profitAndLoss);
 
     }, false);
 
@@ -240,3 +254,10 @@
     }
 
   }
+
+  // < - - Wyświetlanie danych - - >
+
+
+  // function numberWithCommas(x) {
+    //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ").replace(".",",");
+    // }
