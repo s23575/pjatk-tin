@@ -37,7 +37,6 @@
   var $schema1 = getSchemas(schemaAddress1);
   var $schema2 = getSchemas(schemaAddress2);
   var $schema3 = getSchemas(schemaAddress3);
-
 // < - - / Pobieranie struktur danych - - >
 
 // < - - Pobieranie i agregowanie danych - - >
@@ -68,10 +67,22 @@
     this.setValuePreviousYear = function(valuePreviousYear){ this.valuePreviousYear = valuePreviousYear; };
   }
 
-  function entityData(category, value) {
-    this.category = category;
-    this.value = value;
+  function entityData() {
+    this.level;
+    this.category;
+    this.value;
+
+    this.getLevel = function(){ return this.level; };
+    this.setLevel = function(level){ this.level = level; };
+
+    this.getCategory = function(){ return this.category; };
+    this.setCategory = function(category){ this.category = category; };
+
+    this.getValue = function(){ return this.value; };
+    this.setValue = function(value){ this.value = value; };
   }
+
+  var profitAndLossType;
 
   function getCategoryName(categoryNameString) {
     var string = "xsd\\:element[name='" + categoryNameString + "'] > xsd\\:annotation > xsd\\:documentation:first";
@@ -81,7 +92,11 @@
       console.log("Błąd :\tnie pobrano struktur danych (schem XML)");
     }
 
-    $category = $schema1.find(string);
+    if (profitAndLossType !== undefined) {
+      $category = $schema1.find(profitAndLossType).find(string);
+    } else {
+      $category = $schema1.find(string);
+    }
     result = $category.text();
 
     if ($category.text() === "") {
@@ -89,7 +104,7 @@
       result = $category.text();
 
       if ($category.text() === "") {
-        $category = $schema3.find(s);
+        $category = $schema3.find(string);
         result = $category.text();
 
         if ($category.text() === "") {
@@ -102,50 +117,91 @@
     return result;
   }
 
-  function getChildrenContent($parentCategory, level=0) {
-    var finData = new financialData();
-    finDataSet.push(finData);
+  // function getChildrenContentEnt($parentCategory, level=0) {
+  //   var entData = new entityData();
+  //   entDataSet.push(entData);
+  //
+  //   var categoryNameString;
+  //   var categoryName;
+  //   level++;
+  //   // var dashes = "";
+  //   // for (var i = 1; i < level; i++) {
+  //   //   dashes += "– ";
+  //   // }
+  //   $parentCategory.children().each( function( i, child ) {
+  //     categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
+  //     if ($(this).children().length > 0) {
+  //       categoryName = getCategoryName(categoryNameString);
+  //       entDataSet.at(-1).setCategory(categoryName);
+  //       entDataSet.at(-1).setLevel(level);
+  //     } else {
+  //       categoryName = getCategoryName(categoryNameString);
+  //       entDataSet.at(-1).setCategory(categoryName);
+  //       entDataSet.at(-1).setValue(child.textContent);
+  //       entDataSet.at(-1).setLevel(level);
+  //       // d = getNodeName(s);
+  //       // $( ".content" ).append( '<div class="dane">' +
+  //       //                         '<div class="kategoria">' + d + '</div>' +
+  //       //                         '<div class="wartosc">' + child.textContent + '</div>' +
+  //       //                         '</div>');
+  //     }
+  //     getChildrenContentEnt( $(child) , level);
+  //   });
+  // }
 
-    var categoryNameString;
-    var categoryName;
+  function getChildrenContentFin($parentCategory, level=0) {
     level++;
-    // var dashes = "";
-    // for (var i = 1; i < level; i++) {
-    //   dashes += "– ";
-    // }
+
     $parentCategory.children().each( function( i, child ) {
-      categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
       if ($(child).children().length > 0) {
-        categoryName = getCategoryName(categoryNameString);
-        finDataSet.at(-1).setCategory(categoryName);
-        finDataSet.at(-1).setLevel(level);
-        //         d = getNodeName(s);
-        //         $( ".content" ).append( '<div class="dane" level=' + level + '><div class="kategoria"><p>' + p + d + '</p></div></div>' );
-        // //        // console.log(d + " : " + level);
-        getChildrenContent( $(child) , level);
-      } else {
-        if (finDataSet.at(-2).getValueCurrentYear() === undefined) {
-          finDataSet.at(-2).setValueCurrentYear(parseFloat(child.textContent));
+        var finData = new financialData();
+
+        var categoryNameString;
+        var categoryName;
+
+        finData.setLevel(level);
+
+        if (child.nodeName.includes("PozycjaUszczegolawiajaca")) {
+          finData.setCategory($(child).children("dtsf\\:NazwaPozycji").text());
+          finData.setValueCurrentYear($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaA").text());
+          finData.setValuePreviousYear($(child).children("dtsf\\:KwotyPozycji").children("dtsf\\:KwotaB").text());
+          finDataSet.push(finData);
+        } else if (child.nodeName == "dtsf:KwotyPozycji") {
         } else {
-          finDataSet.at(-2).setValuePreviousYear(parseFloat(child.textContent));
+          categoryNameString = child.nodeName.substring(child.nodeName.indexOf(":") + 1);
+          finData.setCategory(getCategoryName(categoryNameString));
+          finData.setValueCurrentYear($(child).children("dtsf\\:KwotaA").text());
+          finData.setValuePreviousYear($(child).children("dtsf\\:KwotaB").text());
+          finDataSet.push(finData);
         }
-        // //        d = getNodeName(s);
-        //         d = numberWithCommas(child.textContent);
-        //         $( ".dane" ).last().append( /*'<div class="dane">' +*/
-        // //                                '<div class="kategoria">' + d + '</div>' +
-        //                                 '<div class="wartosc"><p>' + d + '</p></div>');
+        getChildrenContentFin( $(child) , level);
       }
     });
   }
 
-  function getContentByCategory ($xmlData, category) {
+  function getContentByCategory ($xmlData, category, type) {
+
+    if (category == "RZiS") {
+      profitAndLossType = $xmlData.find(category).children().get(0).nodeName;
+      profitAndLossType = profitAndLossType.substring(profitAndLossType.indexOf(":") + 1);
+      profitAndLossType = "xsd\\:element[name='" + profitAndLossType + "']:first";
+    }
+
     var $category = $xmlData.find(category);
     // var categoryName = getNodeName($category[0].nodeName.substring($category[0].nodeName.indexOf(":") + 1));
     // $( ".content" ).append( '<div class="parent">' + categoryName + '</div>' );
-    getChildrenContent($category);
+    if (type == 1) {
+      getChildrenContentFin($category);
+    } else {
+      getChildrenContentEnt($category);
+    }
   }
 
   function openFile() {
+    var balanceSheet;
+    var profitAndLoss;
+    var entityData;
+
     var file = $('input[type=file]')[0].files[0];
     $(".input" ).text( file.name );
 
@@ -156,12 +212,23 @@
       var xmlData = $.parseXML(data);
       $xmlData = $(xmlData);
 
-      // getContentByCategory($xmlData,'P_1');
-      // getContentByCategory($xmlData,'P_3');
-        getContentByCategory($xmlData,'Bilans');
-//      getContentByCategory($xmlData,'jin\\:Aktywa');
-      // // getContentByCategory($xmlData,'jin\\:Pasywa');
-      // getContentByCategory($xmlData,'RZiS');
+      // Typy danych:
+      // 0 - dane opisowe (dotyczące podmiotu),
+      // 1 - dane finansowe,
+
+      // getContentByCategory($xmlData,'P_1', 0);
+      // // getContentByCategory($xmlData,'P_1');
+      // getContentByCategory($xmlData,'P_3', 0);
+      // entityData = entDataSet;
+      // entDataSet = [];
+
+      getContentByCategory($xmlData,'Bilans', 1);
+      balanceSheet = finDataSet;
+      finDataSet = [];
+
+      getContentByCategory($xmlData,'RZiS', 1);
+      profitAndLoss = finDataSet;
+      finDataSet = [];
 
     }, false);
 
@@ -172,5 +239,4 @@
       console.log('Błąd :\tnie otwarto pliku "' + file.name + '"');
     }
 
-    console.log(finDataSet);
   }
