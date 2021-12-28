@@ -216,15 +216,31 @@
 
   function getContentByCategory ($xmlData, category, type) {
 
-    if (category == "RZiS") {
+    if (category == "RZiS" || category == "tns\\:RZiS") {
       profitAndLossType = $xmlData.find(category).children().get(0).nodeName;
       profitAndLossType = profitAndLossType.substring(profitAndLossType.indexOf(":") + 1);
       profitAndLossType = "xsd\\:element[name='" + profitAndLossType + "']:first";
     }
 
     var $category = $xmlData.find(category);
+
     if (type == 1) {
       getChildrenContentFin($category);
+
+      var date = new Date(Date.parse(entDataSet.at(-2).getValue()) - 86400000);
+      var finData = new financialData();
+      finData.setLevel(1);
+      finData.setValueCurrentYear(entDataSet.at(-1).getValue());
+      finData.setValuePreviousYear(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
+
+      if (category == "RZiS" || category == "tns\\:RZiS") {
+        finData.setCategory(finDataSet[0].getCategory());
+        finDataSet[0] = finData;
+      } else {
+        finData.setCategory("Bilans");
+        finDataSet.unshift(finData);
+      }
+
     } else if (type == 0) {
       getChildrenContentEnt($category);
     }
@@ -282,17 +298,17 @@
       finDataSet = [];
       console.log('Log :\tuwtorzono tablicę "profitAndLoss" zawierającą ' + profitAndLoss.length + ' element/y/ów/');
 
-//      unitK = $xmlData.find(":contains(SprFinJednostkaInnaW)").text().endsWith("Tysiacach");
-
       displayData(entDataSet, balanceSheet, profitAndLoss);
       entDataSet = [];
       balanceSheet = [];
       profitAndLoss = [];
+      unitK = false;
 
     }, false);
 
     if (Boolean(file)) {
       reader.readAsText(file);
+      $(".parent").removeAttr("loaded");
       console.log('Log :\totwarto plik "' + file.name + '"');
     } else {
       console.log('Błąd :\tnie otwarto pliku "' + file.name + '"');
@@ -309,7 +325,7 @@
   function formatNumber(number, type) {
 
     // Typy formatowania:
-    // 0 - wartości liczbowe, w walucie,
+    // 0 - wartości liczbowe,
     // 1 - wartości procentowe,
 
     if (type == 0) {
@@ -336,11 +352,11 @@
       }
 
       if (data.getValue() === undefined) {
-        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+        string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
                  '<p>' + data.getCategory() + '</p></div></div>';
       } else {
 
-        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+        string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
                  '<p>' + data.getCategory() + '</p></div>' +
                  '<div class="wartosci"><div class="wartosc"><p>' + data.getValue() + '</p></div></div></div>';
       }
@@ -358,7 +374,7 @@
 
     finData.forEach(function(data, i) {
 
-      for (var i = 1; i < data.getLevel(); i++) {
+      for (var j = 1; j < data.getLevel(); j++) {
           levelIndicator += "–&nbsp;";
       }
 
@@ -367,17 +383,42 @@
         growth = "";
       } else {
         growth = formatNumber(growth, 1);
+        if (growth.at(0) == "-") {
+          growth = "– " + growth.slice(1);
+        } else if (growth.startsWith("0,00")) {
+        } else {
+          growth = "+ " + growth;
+        }
+
       }
 
-      if (isNaN(data.getValueCurrentYear())) {
-        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
-                 '<p>' + data.getCategory() + '</p></div></div>';
-      } else {
-        string = '<div class="dane"><div class="kategoria" level="' + data.getLevel() + '"><div class="level"><p>' + levelIndicator +'</p></div>' +
+      if (i == 0) {
+        string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
                  '<p>' + data.getCategory() + '</p></div>' +
-                 '<div class="wartosci"><div class="wartosc"><p>' + formatNumber(data.getValueCurrentYear(), 0) + '</p></div>' +
-                 '<div class="wartosc"><p>' + formatNumber(data.getValuePreviousYear(), 0) + '</p></div>' +
-                 '<div class="wartosc"><p>' + growth + '</p></div></div></div>';
+                 '<div class="wartosci"><div class="wartosc"><p>' + data.getValueCurrentYear() + '</p></div>' +
+                 '<div class="wartosc"><p>' + data.getValuePreviousYear()  + '</p></div>' +
+                 '<div class="wartosc"><p>Różnica r / r</p></div></div></div>';
+      } else {
+        if ((data.getValueCurrentYear() == data.getValuePreviousYear()) && (data.getValueCurrentYear() == 0)) {
+          var empty = true;
+          if (!(finData[i-1].getValueCurrentYear() == finData[i-1].getValuePreviousYear() && finData[i-1].getValueCurrentYear() == 0)) {
+            string = '<div class="dane" level="' + data.getLevel() + '" clicked="false"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                     '<p>Puste wiersze  (kliknij, aby rozwinąć / zwinąć)</p></div>' +
+                     '<div class="wartosci"><div class="wartosc"><p>' + formatNumber(data.getValueCurrentYear(), 0) + '</p></div>' +
+                     '<div class="wartosc">' + formatNumber(data.getValuePreviousYear(), 0) + '<p></p></div>' +
+                     '<div class="wartosc"><p></p></div></div></div>';
+          }
+          string += '<div class="emptyRecord">';
+        }
+        string += '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                  '<p>' + data.getCategory() + '</p></div>' +
+                  '<div class="wartosci"><div class="wartosc"><p>' + formatNumber(data.getValueCurrentYear(), 0) + '</p></div>' +
+                  '<div class="wartosc"><p>' + formatNumber(data.getValuePreviousYear(), 0) + '</p></div>' +
+                  '<div class="wartosc"><p ' + (growth.at(0) == "0" ? '' : (growth.at(0) == "+" ? 'growth="positive"' : 'growth="negative"' )) +
+                  '>' + growth + '</p></div></div></div>';
+        if (empty == true) {
+          string += '</div>';
+        }
       }
 
       if (type == 0) {
@@ -387,6 +428,7 @@
       }
 
       levelIndicator = "";
+      string = "";
     });
   }
 
@@ -405,12 +447,14 @@
 
   // </ - - Wyświetlanie danych - - >
 
-  // < - - Rozwijanie / zwijanie nagłówków - - >
+  // < - - Rozwijanie / zwijanie wierszy - - >
 
   $(function(){
+
+    // Rozwijanie / zwijanie nagłówków
+
     $(".parent").click(function(e) {
       var clicked = e.target.getAttribute("clicked");
-
       if (clicked == "false") {
         if (Boolean(file)) {
           e.target.setAttribute("clicked","true");
@@ -421,4 +465,16 @@
         }
       }
     });
+
+    // Rozwijanie / zwijanie wszystkich pustych wierszy
+
+    $(document).on('click', '.dane[clicked]', function(e) {
+      var emptyRecord = $(e.target).parents('.dane[clicked]');
+      if (emptyRecord.attr("clicked") == "false") {
+        $(".dane[clicked]").attr("clicked","true");
+      } else {
+        $(".dane[clicked]").attr("clicked","false");
+      }
+    });
+
   })
