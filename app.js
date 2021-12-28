@@ -352,10 +352,15 @@
       }
 
       if (data.getValue() === undefined) {
-        string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
-                 '<p>' + data.getCategory() + '</p></div></div>';
+        if (data.getLevel() == 1) {
+          string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
+          '<p>' + data.getCategory() + '</p></div></div>';
+        } else {
+          string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
+                   '<p>' + data.getCategory() + '</p></div>' +
+                   '<div class="wartosci"><div class="wartosc"><p></p></div></div></div>';
+        }
       } else {
-
         string = '<div class="dane" level="' + data.getLevel() + '"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
                  '<p>' + data.getCategory() + '</p></div>' +
                  '<div class="wartosci"><div class="wartosc"><p>' + data.getValue() + '</p></div></div></div>';
@@ -405,7 +410,7 @@
             string = '<div class="dane" level="' + data.getLevel() + '" clicked="false"><div class="kategoria"><div class="level"><p>' + levelIndicator +'</p></div>' +
                      '<p>Puste wiersze  (kliknij, aby rozwinąć / zwinąć)</p></div>' +
                      '<div class="wartosci"><div class="wartosc"><p>' + formatNumber(data.getValueCurrentYear(), 0) + '</p></div>' +
-                     '<div class="wartosc">' + formatNumber(data.getValuePreviousYear(), 0) + '<p></p></div>' +
+                     '<div class="wartosc"><p>' + formatNumber(data.getValuePreviousYear(), 0) + '</p></div>' +
                      '<div class="wartosc"><p></p></div></div></div>';
           }
           string += '<div class="emptyRecord">';

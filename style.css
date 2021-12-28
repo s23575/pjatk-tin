@@ -7,8 +7,9 @@ body{
     font-family: Tahoma, Arial, sans-serif;
     font-size: 12px;
     margin: 12px;
-    opacity: 0.8;
 }
+
+/* < - - Header - - > */
 
 .header {
   width: 960px;
@@ -17,16 +18,17 @@ body{
 
 .input {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   height: 32px;
-  border: 1px solid black;
   font-weight: bold;
-  background: rgb(255, 255, 255);
+  text-transform: uppercase;
+  border-bottom: 1px solid black;
 }
 
 .input:hover {
   cursor: pointer;
+  text-decoration: underline;
 }
 
 input {
@@ -34,9 +36,7 @@ input {
   display: none;
 }
 
-.dane:hover, .parent:hover, .input:hover {
-  background: rgb(224, 224, 224);
-}
+/* < - - Content - - > */
 
 .content{
   width: 960px;
@@ -54,17 +54,17 @@ p {
   justify-content: center;
   align-items: center;
   height: 32px;
-  border: 1px solid black;
-  border-top: none;
-  background: rgb(252, 252, 252);
-}
-
-.parent:nth-of-type(1){
-  border-top: 1px solid black;
+  font-weight: bold;
+  border-bottom: 1px solid black;
 }
 
 .parent[loaded="false"] {
-  opacity: 0.4;
+  color: rgb(120, 120, 120);
+  border-bottom: 1px solid rgb(120, 120, 120);
+}
+
+.parent:hover {
+  text-decoration: underline;
 }
 
 [clicked="false"] + .dataSet {
@@ -75,12 +75,9 @@ p {
   display: initial;
 }
 
-.emptyRecord {
-  opacity: 0.6;
-}
-
 .dane {
   display: flex;
+  flex-direction: row;
 }
 
 .dane[clicked="false"] ~ .emptyRecord {
@@ -93,10 +90,18 @@ p {
 
 .dane[clicked] {
   font-style: italic;
-  opacity: 0.6;
+  color: rgb(120, 120, 120);
 }
 
-.kategoria{
+.dane:hover {
+  background: rgb(225, 225, 225) !important;
+}
+
+.emptyRecord {
+  color: rgb(120, 120, 120);
+}
+
+.kategoria {
   flex: 1;
   display: flex;
   justify-content: left;
@@ -106,7 +111,7 @@ p {
   border-top: none;
 }
 
-.kategoria > p{
+.kategoria > p {
   padding-right: 12px;
   padding-left: 0px;
 }
@@ -123,6 +128,7 @@ p {
 .wartosci {
   flex: 1;
   display: flex;
+  flex-direction: row;
 }
 
 .wartosc {
@@ -144,30 +150,90 @@ p[growth="negative"] {
   color: red;
 }
 
-#entityData > * > * > .wartosc {
+#entityData .wartosc {
   justify-content: left;
 }
 
 [level="1"] {
-  background: rgb(248, 248, 248);
-}
-
-[level="2"] {
-  background: rgb(244, 244, 244);
-}
-
-[level="3"] {
-  background: rgb(240, 240, 240);
-}
-
-[level="4"] {
   background: rgb(236, 236, 236);
+  font-weight: bold;
 }
 
-[level="5"] {
-  background: rgb(232, 232, 232);
+[level="2"] { background: rgb(240, 240, 240); }
+
+[level="3"] { background: rgb(244, 244, 244); }
+
+[level="4"] { background: rgb(248, 248, 248); }
+
+[level="5"] { background: rgb(252, 252, 252); }
+
+[level="6"] { background: rgb(255, 255, 255); }
+
+[level="1"]:first-of-type div, #entityData [level="1"] div {
+  justify-content: center;
 }
 
-[level="6"] {
-  background: rgb(228, 228, 228);
+#entityData [level="1"] { background: rgb(240, 240, 240); }
+
+#entityData [level="2"] { background: rgb(248, 248, 248); }
+
+#entityData [level="3"] { background: rgb(255, 255, 255); }
+
+/* < - - Footer - - > */
+
+.footer {
+  width: 960px;
+  margin: auto;
+  margin-top: 12px;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  height: 32px;
+  font-style: italic;
+  color: rgb(120, 120, 120);
+}
+
+/* < - - Responsivness - - > */
+
+@media screen and (max-width: 980px) {
+  .header { width: 100%; }
+
+  .content{ width: 100%; }
+
+  .footer { width: 100%; }
+}
+
+@media screen and (max-width: 840px) {
+  .dane {
+    flex-direction: column;
+  }
+
+  #entityData .dane {
+    flex-direction: row;
+  }
+
+  .wartosci {
+    flex-direction: row;
+    border-left: 1px solid black;
+  }
+
+  #entityData .wartosci {
+    border-left: none;
+  }
+
+}
+
+@media screen and (max-width: 480px) {
+
+  #entityData .dane {
+    flex-direction: column;
+  }
+
+  .wartosci {
+    flex-direction: column;
+  }
+
+  #entityData .wartosci {
+    border-left: 1px solid black;
+  }
 }
