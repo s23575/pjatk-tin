@@ -30,13 +30,17 @@
     });
   }
 
+  var schemaAddress1 = "https://s23575.github.io/pjatk-tin/JednostkaInnaStrukturyDanychSprFin_v1-2.xsd";
+  var schemaAddress2 = "https://s23575.github.io/pjatk-tin/StrukturyDanychSprFin_v1-2.xsd";
+  var schemaAddress3 = "https://s23575.github.io/pjatk-tin/JednostkaInnaWZlotych(1)_v1-2(1).xsd";
+
   // var schemaAddress1 = "http://szuflandia.pjwstk.edu.pl/~s23575/JednostkaInnaStrukturyDanychSprFin_v1-2.xsd";
   // var schemaAddress2 = "http://szuflandia.pjwstk.edu.pl/~s23575/StrukturyDanychSprFin_v1-2.xsd";
   // var schemaAddress3 = "http://szuflandia.pjwstk.edu.pl/~s23575/JednostkaInnaWZlotych(1)_v1-2(1).xsd";
 
-  var schemaAddress1 = "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c";
-  var schemaAddress2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v1-2.xsd";
-  var schemaAddress3 = "https://www.gov.pl/attachment/419a55e1-ed6f-4e81-bfde-4968c066d912";
+  // var schemaAddress1 = "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c";
+  // var schemaAddress2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v1-2.xsd";
+  // var schemaAddress3 = "https://www.gov.pl/attachment/419a55e1-ed6f-4e81-bfde-4968c066d912";
 
   var $schema1 = getSchemas(schemaAddress1);
   var $schema2 = getSchemas(schemaAddress2);
