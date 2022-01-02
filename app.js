@@ -30,6 +30,10 @@
     });
   }
 
+  // var schemaAddress1 = "http://szuflandia.pjwstk.edu.pl/~s23575/JednostkaInnaStrukturyDanychSprFin_v1-2.xsd";
+  // var schemaAddress2 = "http://szuflandia.pjwstk.edu.pl/~s23575/StrukturyDanychSprFin_v1-2.xsd";
+  // var schemaAddress3 = "http://szuflandia.pjwstk.edu.pl/~s23575/JednostkaInnaWZlotych(1)_v1-2(1).xsd";
+
   var schemaAddress1 = "https://www.gov.pl/attachment/df9f95d2-ed06-4df2-9338-b486174f124c";
   var schemaAddress2 = "https://www.gov.pl/documents/2034621/2182793/StrukturyDanychSprFin_v1-2.xsd";
   var schemaAddress3 = "https://www.gov.pl/attachment/419a55e1-ed6f-4e81-bfde-4968c066d912";
@@ -226,7 +230,6 @@
 
     if (type == 1) {
       getChildrenContentFin($category);
-
       var date = new Date(Date.parse(entDataSet.at(-2).getValue()) - 86400000);
       var finData = new financialData();
       finData.setLevel(1);
@@ -251,7 +254,14 @@
   function openFile() {
 
     file = $('input[type=file]')[0].files[0];
-    $(".input" ).text(file.name );
+
+    if (file.type != "text/xml") {
+      $(".input" ).text("Wybrano plik o niewłaściwym rozszerzeniu – wybierz ponownie plik...");
+      $(".parent").attr("loaded", "false");
+      return;
+    } else {
+      $(".input" ).text(file.name );
+    }
 
     var reader = new FileReader();
     reader.addEventListener("load", () => {
@@ -271,14 +281,21 @@
       var xmlData = $.parseXML(data);
       $xmlData = $(xmlData);
 
-      var balanceSheet;
-      var profitAndLoss;
+      var kod = $xmlData.find('[kodSystemowy]').text();
+      if (kod != "SprFinJednostkaInnaWZlotych" && kod != "SprFinJednostkaInnaWTysiacach") {
+        $(".input" ).text("Wybrano sprawozdanie finansowe niewłaściwego typu – wybierz ponownie plik...");
+        $(".parent").attr("loaded", "false");
+        return;
+      }
 
       var prefix = "";
-      if ($xmlData.find("P_1").length == 0) {
-          prefix = "tns\\:";
-          unitK = true;
+      if (kod == "SprFinJednostkaInnaWTysiacach") {
+        prefix = "tns\\:";
+        unitK = true;
       }
+
+      var balanceSheet;
+      var profitAndLoss;
 
       // Typy danych:
       // 0 - dane opisowe (dotyczące podmiotu),
@@ -286,17 +303,38 @@
 
       getContentByCategory($xmlData, prefix + "P_1", 0);
       getContentByCategory($xmlData, prefix + "P_3", 0);
-      console.log('Log :\tuwtorzono tablicę "entDataSet" zawierającą ' + entDataSet.length + ' element/y/ów/');
+      if (entDataSet.length > 0) {
+        console.log('Log :\tuwtorzono tablicę "entDataSet" zawierającą ' + entDataSet.length + ' element/y/ów/');
+      } else {
+        console.log('Błąd :\tutworzona tablica "entDataSet" jest pusta');
+        $(".input" ).text("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
+        $(".parent").attr("loaded", "false");
+        return;
+      }
 
       getContentByCategory($xmlData, prefix + 'Bilans', 1);
       balanceSheet = finDataSet;
       finDataSet = [];
-      console.log('Log :\tuwtorzono tablicę "balanceSheet" zawierającą ' + balanceSheet.length + ' element/y/ów/');
+      if (balanceSheet.length > 0) {
+        console.log('Log :\tuwtorzono tablicę "balanceSheet" zawierającą ' + balanceSheet.length + ' element/y/ów/');
+      } else {
+        console.log('Błąd :\tutworzona tablica "balanceSheet" jest pusta');
+        $(".input" ).text("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
+        $(".parent").attr("loaded", "false");
+        return;
+      }
 
       getContentByCategory($xmlData, prefix + 'RZiS', 1);
       profitAndLoss = finDataSet;
       finDataSet = [];
-      console.log('Log :\tuwtorzono tablicę "profitAndLoss" zawierającą ' + profitAndLoss.length + ' element/y/ów/');
+      if (profitAndLoss.length > 0) {
+        console.log('Log :\tuwtorzono tablicę "profitAndLoss" zawierającą ' + profitAndLoss.length + ' element/y/ów/');
+      } else {
+        console.log('Błąd :\tutworzona tablica "profitAndLoss" jest pusta');
+        $(".input" ).text("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
+        $(".parent").attr("loaded", "false");
+        return;
+      }
 
       displayData(entDataSet, balanceSheet, profitAndLoss);
       entDataSet = [];
@@ -311,7 +349,7 @@
       $(".parent").removeAttr("loaded");
       console.log('Log :\totwarto plik "' + file.name + '"');
     } else {
-      console.log('Błąd :\tnie otwarto pliku "' + file.name + '"');
+      console.log('Błąd :\tnie otwarto wybranego pliku');
     }
 
   }
