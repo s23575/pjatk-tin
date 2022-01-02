@@ -246,7 +246,6 @@
       } else {
         finData.setCategory("Bilans");
         finDataSet.unshift(finData);
-        console.log(finDataSet[0]);
       }
 
     } else if (type == 0) {
