@@ -224,7 +224,7 @@
 
   function getContentByCategory ($xmlData, category, type) {
 
-    if (category == "RZiS" || category == "tns\\:RZiS") {
+    if (category == "RZiS" || category == "tns\\:RZiS" || category == "ns1\\:RZiS" || category == "ns1\\:tns\\:RZiS") {
       profitAndLossType = $xmlData.find(category).children().get(0).nodeName;
       profitAndLossType = profitAndLossType.substring(profitAndLossType.indexOf(":") + 1);
       profitAndLossType = "xsd\\:element[name='" + profitAndLossType + "']:first";
@@ -240,12 +240,13 @@
       finData.setValueCurrentYear(entDataSet.at(-1).getValue());
       finData.setValuePreviousYear(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
 
-      if (category == "RZiS" || category == "tns\\:RZiS") {
+      if (category == "RZiS" || category == "tns\\:RZiS" || category == "ns1\\:RZiS" || category == "ns1\\:tns\\:RZiS") {
         finData.setCategory(finDataSet[0].getCategory());
         finDataSet[0] = finData;
       } else {
         finData.setCategory("Bilans");
         finDataSet.unshift(finData);
+        console.log(finDataSet[0]);
       }
 
     } else if (type == 0) {
@@ -293,8 +294,13 @@
       }
 
       var prefix = "";
+
+      if ($xmlData.find('Naglowek').length == 0) {
+        prefix += "ns1\\:";
+      }
+
       if (kod == "SprFinJednostkaInnaWTysiacach") {
-        prefix = "tns\\:";
+        prefix += "tns\\:";
         unitK = true;
       }
 
