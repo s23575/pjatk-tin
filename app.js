@@ -224,7 +224,7 @@
 
   function getContentByCategory ($xmlData, category, type) {
 
-    if (category == "RZiS" || category == "tns\\:RZiS" || category == "ns1\\:RZiS" || category == "ns1\\:tns\\:RZiS") {
+    if (category.includes("RZiS")) {
       profitAndLossType = $xmlData.find(category).children().get(0).nodeName;
       profitAndLossType = profitAndLossType.substring(profitAndLossType.indexOf(":") + 1);
       profitAndLossType = "xsd\\:element[name='" + profitAndLossType + "']:first";
@@ -240,7 +240,7 @@
       finData.setValueCurrentYear(entDataSet.at(-1).getValue());
       finData.setValuePreviousYear(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
 
-      if (category == "RZiS" || category == "tns\\:RZiS" || category == "ns1\\:RZiS" || category == "ns1\\:tns\\:RZiS") {
+      if (category.includes("RZiS")) {
         finData.setCategory(finDataSet[0].getCategory());
         finDataSet[0] = finData;
       } else {
@@ -301,11 +301,9 @@
 
       var prefix = "";
 
-      if ($xmlData.find(prefix + 'Naglowek').length == 0) {
-        prefix += "tns\\:";
-        if ($xmlData.find(prefix + 'Naglowek').length == 0) {
-            prefix += "ns1\\:";
-        }
+      if ($xmlData.find('Naglowek').length == 0) {
+        prefix = $xmlData.first().children(":first").prop("tagName");
+        prefix = prefix.substr(0, prefix.indexOf(':')) + "\\:";
       }
 
       var balanceSheet;
