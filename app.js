@@ -295,15 +295,17 @@
         return;
       }
 
-      var prefix = "";
-
-      if ($xmlData.find('Naglowek').length == 0) {
-        prefix += "ns1\\:";
+      if (kod == "SprFinJednostkaInnaWTysiacach") {
+        unitK = true;
       }
 
-      if (kod == "SprFinJednostkaInnaWTysiacach") {
+      var prefix = "";
+
+      if ($xmlData.find(prefix + 'Naglowek').length == 0) {
         prefix += "tns\\:";
-        unitK = true;
+        if ($xmlData.find(prefix + 'Naglowek').length == 0) {
+            prefix += "ns1\\:";
+        }
       }
 
       var balanceSheet;
