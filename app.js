@@ -238,7 +238,9 @@
       var finData = new financialData();
       finData.setLevel(1);
       finData.setValueCurrentYear(entDataSet.at(-1).getValue());
-      finData.setValuePreviousYear(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
+      finData.setValuePreviousYear(date.getFullYear() + "-" +
+                                  (date.getMonth() + 1).toString().padStart(2,"0") + "-" +
+                                  date.getDate().toString().padStart(2,"0"));
 
       if (category.includes("RZiS")) {
         finData.setCategory(finDataSet[0].getCategory());
