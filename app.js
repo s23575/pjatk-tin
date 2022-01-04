@@ -255,13 +255,17 @@
 
   var file;
 
+  function error(message) {
+    $(".input" ).text(message);
+    $(".parent").attr("loaded", "false");
+  }
+
   function openFile() {
 
     file = $('input[type=file]')[0].files[0];
 
     if (file.type != "text/xml") {
-      $(".input" ).text("Wybrano plik o niewłaściwym rozszerzeniu – wybierz ponownie plik...");
-      $(".parent").attr("loaded", "false");
+      error("Wybrano plik o niewłaściwym rozszerzeniu – wybierz ponownie plik...");
       return;
     } else {
       $(".input" ).text(file.name );
@@ -287,8 +291,7 @@
 
       var kod = $xmlData.find('[kodSystemowy]').text();
       if (kod != "SprFinJednostkaInnaWZlotych" && kod != "SprFinJednostkaInnaWTysiacach") {
-        $(".input" ).text("Wybrano sprawozdanie finansowe niewłaściwego typu – wybierz ponownie plik...");
-        $(".parent").attr("loaded", "false");
+        error("Wybrano sprawozdanie finansowe niewłaściwego typu – wybierz ponownie plik...");
         return;
       }
 
@@ -316,8 +319,7 @@
         console.log('Log :\tuwtorzono tablicę "entDataSet" zawierającą ' + entDataSet.length + ' element/y/ów/');
       } else {
         console.log('Błąd :\tutworzona tablica "entDataSet" jest pusta');
-        $(".input" ).text("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
-        $(".parent").attr("loaded", "false");
+        error("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
         return;
       }
 
@@ -328,8 +330,7 @@
         console.log('Log :\tuwtorzono tablicę "balanceSheet" zawierającą ' + balanceSheet.length + ' element/y/ów/');
       } else {
         console.log('Błąd :\tutworzona tablica "balanceSheet" jest pusta');
-        $(".input" ).text("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
-        $(".parent").attr("loaded", "false");
+        error("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
         return;
       }
 
@@ -340,8 +341,7 @@
         console.log('Log :\tuwtorzono tablicę "profitAndLoss" zawierającą ' + profitAndLoss.length + ' element/y/ów/');
       } else {
         console.log('Błąd :\tutworzona tablica "profitAndLoss" jest pusta');
-        $(".input" ).text("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
-        $(".parent").attr("loaded", "false");
+        error("Wystąpił błąd przy pobieraniu danych – spróbuj ponownie wybrać plik...");
         return;
       }
 
@@ -528,5 +528,46 @@
         $(".dane[clicked]").attr("clicked","false");
       }
     });
+
+    // Scrollowanie z widocznym pierwszym wierszem
+
+    $(window).scroll(function(){
+
+      var windowTop = $(window).scrollTop();
+
+      var $header = $("#balanceSheet > .dane:first");
+      var headerTop = $header.offset().top;
+      var headerBottom = $("#balanceSheet > .dane:last").offset().top;
+      var limitTop = $("#balanceSheet").offset().top;
+
+      header();
+
+      $header = $("#profitAndLoss > .dane:first");
+      headerTop = $header.offset().top;
+      headerBottom = $("#profitAndLoss > .dane:last").offset().top;
+      limitTop = $("#profitAndLoss").offset().top;
+
+      header();
+
+      function header(){
+        if (headerTop != 0 && windowTop >= limitTop && windowTop >= headerTop && windowTop <= headerBottom) {
+          $header.addClass("top");
+          headerWidth($header);
+        } else {
+          $header.removeClass("top");
+        }
+      }
+    });
+
+    $(window).resize(function(){
+      var $header = $("#balanceSheet > .dane:first");
+      headerWidth($header);
+      $header = $("#profitAndLoss > .dane:first");
+      headerWidth($header);
+    });
+
+    function headerWidth($header) {
+        $header.width($(".content").width());
+    }
 
   })
