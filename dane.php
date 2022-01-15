@@ -1,0 +1,1 @@
+{"stock":{"firma1":54,"firma2":40,"firma3":50,"firma4":31},"news":"piec"}
